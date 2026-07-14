@@ -1,4 +1,4 @@
-const { init, flush, shutdown } = require('ravyn-node');
+const { init, flush, shutdown } = require('ravyn');
 
 init({ 
   dsn: 'http://test-key@localhost:8000', 
@@ -6,12 +6,18 @@ init({
   environment: 'development' 
 });
 
+const { fetchUser } = require('./user-service');
+
 async function simulateBug() {
-  console.log("Starting DB operation...");
+  console.log("Starting web request handler...");
   
-  // Simulated Bug
-  const error = new Error('DB Timeout Error: Connection failed after 5000ms');
-  console.error("Critical failure during DB operation", error);
+  try {
+    const user = await fetchUser(101);
+    console.log("Fetched user", user);
+  } catch (error) {
+    // Simulated Bug
+    console.error("Uncaught exception in web handler", error);
+  }
   
   await flush();
   await shutdown();
